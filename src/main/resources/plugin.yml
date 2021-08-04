@@ -1,0 +1,6 @@
+name: PistonDrops
+version: 1.0.0
+main: com.bfrisco.pistondrops.PistonDrops
+author: bfrisco
+description: Set custom drops when blocks are destroyed by pistons
+api-version: 1.16
