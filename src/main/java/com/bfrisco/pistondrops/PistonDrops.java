@@ -16,7 +16,27 @@ import java.util.Set;
 public class PistonDrops extends JavaPlugin implements Listener {
     private final HashMap<Material, NewDrop> data = new HashMap<>();
 
-    public PistonDrops() {
+    @Override
+    public void onEnable() {
+        this.getConfig().options().copyDefaults();
+        saveDefaultConfig();
+        loadConfig();
+        Bukkit.getPluginManager().registerEvents(this, this);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBlockPistonExtendEvent(BlockPistonExtendEvent event) {
+        for (Block block : event.getBlocks()) {
+            NewDrop d = data.get(block.getType());
+            if (d == null) continue;
+            block.setType(Material.AIR);
+            if (d.getNewDrop() != null) {
+                block.getWorld().dropItem(block.getLocation(), new ItemStack(d.getNewDrop(), d.getQuantity()));
+            }
+        }
+    }
+
+    public void loadConfig() {
         ConfigurationSection items = getConfig().getConfigurationSection("items-to-change");
         if (items == null) throw new IllegalArgumentException("Config must have items-to-change!");
         Set<String> itemNames = items.getKeys(false);
@@ -53,26 +73,6 @@ public class PistonDrops extends JavaPlugin implements Listener {
             }
 
             data.put(item, new NewDrop(drop, quantity));
-        }
-    }
-
-    @Override
-    public void onEnable() {
-        this.getConfig().options().copyDefaults();
-        saveDefaultConfig();
-
-        Bukkit.getPluginManager().registerEvents(this, this);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockPistonExtendEvent(BlockPistonExtendEvent event) {
-        for (Block block : event.getBlocks()) {
-            NewDrop d = data.get(block.getType());
-            if (d == null) continue;
-            block.setType(Material.AIR);
-            if (d.getNewDrop() != null) {
-                block.getWorld().dropItem(block.getLocation(), new ItemStack(d.getNewDrop(), d.getQuantity()));
-            }
         }
     }
 }
